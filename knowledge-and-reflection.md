@@ -73,27 +73,76 @@ def sha256_hash(key: str, size: int) -> int:
 
 1. All of the above functions are hash functions. Explain how so - what key properties do they all share?
 
-> Your answer here
+> All of the above are hash functions because they take an input key and transform it into a hash value. That can then be used to determine where the key/value should be stored in the hash map. They produce a value that can be mapped to an index within the hash map. However, some are very bad at distribution and have a very high collision rate and some are very slow.
 
 2. What are the advantages and disadvantages of each of the above hash functions? Evaluate in terms of uniformity, determinism, efficiency, collision resistance, sensitivity to input changes, and security[1](#Reference). You may need to do some reasearch to answer this question 😱
 
-> Your answer here
+> 1. Stupidly Simple Hash - ADVANTAGES: Extremely fast, very simple and deterministic. DISADVANTAGES: Every key produces the same value, terrible uniformity, every key will collide, no security. Kind of pointless really.
+> 2. Sum of ASCII values - ADVANTAGES: Simple to understand, fast to calculate, deterministic, different characters can produce different values. DISADVANTAGES: Different keys can produce the same values, meaning collisions are likey and the character order doesn't matter, again leading to poor resistance against collisions.
+> 3. Pearson Hash - ADVANTAGES: Good distribution, more sensitive to input changes, better collisions resistance than the ASCII approach. DISADVANTAGES: A little complicated, the implementation requires lookup table to be available and the version here doesn't have cryptographic security.
+> 4. Python Built-in `hash()` - ADVANTAGES: Very fast, designed for python so it works well with python data structures, easy to use and has good distribution generally. DISADVANTAGES: Randomisation means string hashes are probably not going to be the same, the distribution depends on Python and it isn't cryptographically secure.
+> 5. SHA256 - ADVANTAGES: Excellent distribution, low collision rate, deterministic, fast execution for files. DISADVANTAGES: Slower that simplier hash functions but still faster than other adaptive hashing algorithms.
+>    <BR> SOURCES:
+>
+> - [sha-256 hashing in python](https://stackoverflow.com/questions/48613002/sha-256-hashing-in-python)
+> - [Hashing: An Overview of Concepts and Application in Python](https://medium.com/@inandelibas/hashing-an-overview-of-concepts-and-applications-in-python-be3a6d85a5a4)
+> - [Pearson Hashing in Python](https://mojoauth.com/hashing/pearson-hashing-in-python)
 
 3. List the three most important attributes (arranged from most to least) in the context of a hash map? Justify your answer.
 
-> Your answer here
+> 1. Uniformity - I think this would be the most important because a hash function should distribute keys across the available positions as evenly as possible. Poor distribution causes some buckets in chaining to contain way more items then others.
+> 2. Collision - Different keys can produce the same hash value but this causes collisions, a good hash functions should minimise this. Fewer collisions generally mean better performance overall.
+> 3. Efficiency - A hash map is designed to provide faster access to data. The hash function should calculate the position quickly, otherwise this main benefit is lost.
+>    Worth noting that security is very important depending on what you are using it for. This application doesn't particularly need high security or cryptography but if the app did then that would be number one.
 
 4. Which of the above hash functions would you choose to implement the requirements of the task? Why?
 
-> Your answer here
+> Personally, I would choose Python built-in `hash()` functions because it provides a decent balance between efficiency, uniformity and collisation resistance. It is also already implemented and optimised in Python making it simpler and faster that using SHA256, even though that has better security. For this task I think the good distribution, low collisions and speed are more desirable.
 
 5. In your own words, explain each line in the pearson hash function above in terms of the criteria you listed in question 2.
 
-> Your answer here
+```python
+#Imports the Python random module so that a shuffled lookup table can be created.
+import random
+
+# This ensures that the randomisation is repeatable. Makes the table deterministic.
+random.seed(42)
+
+# This is INCORRECT:
+# pearson_table = [random.randint(0, 255) for _ in range(256)]
+
+#This creates a list containing every integer from 0-255. These values will then be used as the lookup table
+pearson_table = list(range(256))
+#Randomly rearranges the values in the table. Help distribution of the hash values more evenly
+random.shuffle(pearson_table)
+
+def pearson_hash(key: str, size: int) -> int:
+    # This creates the inital hash value
+    hash_ = 0
+    # This processes each character in the key
+    for char in key:
+        # The `ord(char)` converts the current charater into its numerical ASCII/Unicode value.
+        # The `hash_ ^ ord(char)` perfor5ms an XOR operation between the current hash value and the characters numerical value. This causes changes to the input charaters to affect the hash calculation
+        # The `pearson_table[...]` uses the XOR result as an index to the shuffled table
+        hash_ = pearson_table[hash_ ^ ord(char)]
+    # This uses modulo to convert the final hash value into a valid index within the hash map's size.
+    return hash_ % size
+```
 
 6. Write pseudocode of how you would store Players in PlayerLists in a hash map.
 
-> Your answer here
+```
+Create a hash map with a fixed num of positions
+For each Player:
+    Get the Player's UID
+    Calculate the hash value
+    Calculate index = hash value modulo hash map size
+
+    if no PlayerList exisits at index:
+        create PlayerList at index
+
+    Insert Player into PlayerList at index
+```
 
 ## Reflection
 

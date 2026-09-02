@@ -148,11 +148,15 @@ For each Player:
 
 1. What was the most challenging aspect of this task?
 
-> Your answer here
+> During this task there were a few things I found challenging but eventually overcame.
+>
+> 1. Understanding dunder methods and how they are to be called by the built in operator and not by the dunder directly.
+> 2. During testing I kept calling the class itself rather the instance of the class and couldn't figure out why the test wasn't working.
+> 3. Figuring out why my `test_delitem_does_not_affect_other_players_in_same_list` wouldn't pass. It was because I had an issue in the PlayerList.delete. `previous = current.prev` was capturing the wrong node and because the test was deleting a middle node between the head and tail it surfaced the bug.
 
 2. If you didn't have to use a PlayerList, how would you have changed them implementation of the hash map and why?
 
-> Your answer here
+> I would have used a python list per bucket instead of a PlayList. I would use it because it is simpler. I wouldn't even need a `PlayerNode` and wouldn't need `find`, `delete` or `insert_last` because Python already gives me `.append()`, `in`, `.remove()`. Also it would make searching easier as I wouldn't have to change the pointer for `.next`, I would just search for the key via a loop checking the `.uid`.
 
 ## Reference
 
